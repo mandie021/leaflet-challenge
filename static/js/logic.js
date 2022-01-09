@@ -33,7 +33,7 @@ async function main() {
         // console.log(quake.geometry.coordinates[1]);
         // console.log(quake.geometry.coordinates[0]);
         // console.log("place", quake.properties.place);
-        console.log("mag", quake.properties.mag);
+        // console.log("mag", quake.properties.mag);
         // console.log("dep", quake.geometry.coordinates[2])
         
         // variable for my marker size and color
@@ -42,45 +42,32 @@ async function main() {
 
         // create color conditions for depth 
         var color = "";
-            if (dep > 69) {
+            if (dep > 91) {
             color = "red";
             }
-            else if (dep > 49) {
+            else if (dep > 90) {
+            color = "orangered";
+            }
+            else if (dep > 50) {
             color = "orange";
             }
-            else if (dep > 29) {
-            color = "yellow";
+            else if ( dep > 30){
+                color = "yellow"
             }
-            else if ( dep > 9){
+            else if ( dep > 10){
                 color = "yellowgreen"
             }
             else {
             color = "green";
         }
 
-        var radius = "";
-        if (mag > 3) {
-            radius = 50000;
-            }
-            else if (dep > 4) {
-            radius = 10000;
-            }
-            else if (dep > 2) {
-                radius = 3000;
-            }
-            else if ( dep > 1){
-                radius = 2000;
-            }
-            else {
-                radius = 100;
-        }
         if (quake){
             quakeMarker.push(
             L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]],{
                 fillOpacity: 0.75,
                 color: color,
                 fillColor: color,
-                radius: radius,   
+                radius: mag * 5000,   
             }).bindPopup(
                 "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ 
                 "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
@@ -101,10 +88,6 @@ async function main() {
     var overlayMaps = {
         Earthquakes: quakeLayer,
     };
-    // Create legend
-    var legend = L.control({
-        position: "bottomright"
-    })
 
     // Creating the map object
     var myMap = L.map("map", {
@@ -112,12 +95,33 @@ async function main() {
         zoom: 3,
         layers : [street, quakeLayer]
     });
+
+   // Create a layer control, and pass it baseMaps and overlayMaps. Add the layer control to the map.
+   L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+
+
+    // Create legend
+    var legend = L.control({position: "bottomright"});
+    legend.onAdd = function () {
+
+        var div = L.DomUtil.create('div', 'info legend');
+        // let labels = ['<strong>Depth</strong>'];
+        const depths = ['-10-10', '10-30', '30-50', '50-70', '70-90', '90+'];
+        const colors = ["red", "orangered", "orange", "yellow", "yellowgreen", "green"]
+
+    for (var i = 0; i < depths.length; i++) {
+            div.innerHTML += 
+          "<i style='background: " + colors[i] + "'></i> " 
+          +
+          depths[i] + (depths[i + 1] ? "&ndash;" + depths[i + 1] + "<br>" : "+");
+        }
+        return div;
+    };
     
-    // Create a layer control, and pass it baseMaps and overlayMaps. Add the layer control to the map.
-    L.control.layers(baseMaps, overlayMaps, legend).addTo(myMap);
 
-   
-
+  
+    // Finally, we add our legend to the map.
+    legend.addTo(myMap);
 
 };
 main();
