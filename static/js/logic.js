@@ -1,11 +1,4 @@
 async function main() {
-    
-    // Adding the tile layer
-    var street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
-    
-
     // API listings
     const url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
@@ -16,12 +9,20 @@ async function main() {
         
     //adding variable
     var features = data.features;
-    console.log("features", features);
-
-    // create color for mag 
-
+    console.log("features", features); 
+       
+    // Adding the tile layer
+    var street = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    });
+    
+    var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+  
+  
     // Create a new circle cluster group.
-    quakeMarker = [];
+    quakeMarker = []
 
     // Loop through the data.
     for (var i = 0; i < features.length; i++) {
@@ -33,32 +34,58 @@ async function main() {
         // console.log(quake.geometry.coordinates[0]);
         // console.log("place", quake.properties.place);
         // console.log("mag", quake.properties.mag);
+        // console.log("dep", quake.geometry.coordinates[2])
+        
+        // variable for my marker size and color
         var mag = quake.properties.mag;
         var dep = quake.geometry.coordinates[2];
+
+        // create color conditions for depth 
+        var color = "";
+            if (dep > 69) {
+            color = "red";
+            }
+            else if (dep > 49) {
+            color = "orange";
+            }
+            else if (dep > 29) {
+            color = "yellow";
+            }
+            else if ( dep > 9){
+                color = "yellowgreen"
+            }
+            else {
+            color = "green";
+        }
         if (quake){
             quakeMarker.push(
-            L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]]).bindPopup(
-                "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ "Time: " + quake.properties.time +
+            L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]],{
+                fillOpacity: 0.75,
+                color: color,
+                fillColor: color,
+                // radius: Math.sqrt(mag) * 30000,   
+            }).bindPopup(
+                "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ 
                 "<br>"+ "<hr>"+ "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
             )};
         /// add color function to create map function            
 
     };
     // Create a layer group that's made from the quake markers array
-    var quakeLayer = L.layerGroup(quakeMarker){
-        radius: markerSize(mag);
-
-    };
+    var quakeLayer = L.layerGroup(quakeMarker)
     
 
     // Create a baseMaps object to hold the streetmap layer.
     var baseMaps = {
-        Street: street,
+        "Street Map": street,
+        "Topographic Map": topo
       };
     // Create an overlayMaps object to hold the bikeStations layer.
     var overlayMaps = {
-        Quake: quakeLayer,
+        Earthquakes: quakeLayer,
     };
+    // Create legend
+        var legend = L.control({position: 'bottomright'})
 
     // Creating the map object
     var myMap = L.map("map", {
@@ -68,7 +95,9 @@ async function main() {
     });
     
     // Create a layer control, and pass it baseMaps and overlayMaps. Add the layer control to the map.
-    L.control.layers(baseMaps, overlayMaps).addTo(myMap);
+    L.control.layers(baseMaps, overlayMaps, legend).addTo(myMap);
+
+   
 
 
 };
