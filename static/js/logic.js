@@ -33,7 +33,7 @@ async function main() {
         // console.log(quake.geometry.coordinates[1]);
         // console.log(quake.geometry.coordinates[0]);
         // console.log("place", quake.properties.place);
-        // console.log("mag", quake.properties.mag);
+        console.log("mag", quake.properties.mag);
         // console.log("dep", quake.geometry.coordinates[2])
         
         // variable for my marker size and color
@@ -57,18 +57,35 @@ async function main() {
             else {
             color = "green";
         }
+
+        var radius = "";
+        if (mag > 3) {
+            radius = 50000;
+            }
+            else if (dep > 4) {
+            radius = 10000;
+            }
+            else if (dep > 2) {
+                radius = 3000;
+            }
+            else if ( dep > 1){
+                radius = 2000;
+            }
+            else {
+                radius = 100;
+        }
         if (quake){
             quakeMarker.push(
             L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]],{
                 fillOpacity: 0.75,
                 color: color,
                 fillColor: color,
-                // radius: Math.sqrt(mag) * 30000,   
+                radius: radius,   
             }).bindPopup(
                 "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ 
-                "<br>"+ "<hr>"+ "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
+                "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
             )};
-        /// add color function to create map function            
+         
 
     };
     // Create a layer group that's made from the quake markers array
@@ -85,7 +102,9 @@ async function main() {
         Earthquakes: quakeLayer,
     };
     // Create legend
-        var legend = L.control({position: 'bottomright'})
+    var legend = L.control({
+        position: "bottomright"
+    })
 
     // Creating the map object
     var myMap = L.map("map", {
