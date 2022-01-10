@@ -19,6 +19,8 @@ async function main() {
     var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
+
+    // Adding get color function for marker color and legend
     function getColor(dep) {
                 return dep > 91  ? 'red' :
                     dep > 90  ? '#DD571C' :
@@ -37,19 +39,13 @@ async function main() {
 
         // Set the earthquake property to a variable.
         var quake = features[i];
-        // console.log("quake", quake);
-        // console.log(quake.geometry.coordinates[1]);
-        // console.log(quake.geometry.coordinates[0]);
-        // console.log("place", quake.properties.place);
-        // console.log("mag", quake.properties.mag);
-        // console.log("dep", quake.geometry.coordinates[2])
         
         // variable for my marker size and color
         var mag = quake.properties.mag;
         var dep = quake.geometry.coordinates[2];
       
 
-
+        // Quake marker details
         if (quake){
             quakeMarker.push(
             L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]],{
@@ -58,22 +54,20 @@ async function main() {
                 fillColor: getColor(dep),
                 radius: mag * 5000,   
             }).bindPopup(
-                "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ 
+                "<h1>"+ "Location: " + quake.properties.title + "<br>"+ "<hr>"+ 
                 "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
             )};
-        
-         
-
     };
+
     // Create a layer group that's made from the quake markers array
     var quakeLayer = L.layerGroup(quakeMarker)
     
-
     // Create a baseMaps object to hold the streetmap layer.
     var baseMaps = {
         "Street Map": street,
         "Topographic Map": topo
       };
+
     // Create an overlayMaps object to hold the bikeStations layer.
     var overlayMaps = {
         Earthquakes: quakeLayer,
@@ -108,8 +102,6 @@ async function main() {
         return div;
     };
     
- 
-  
     //  add our legend to the map.
     legend.addTo(myMap);
 
