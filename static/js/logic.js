@@ -19,11 +19,18 @@ async function main() {
     var topo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
     });
-  
+    function getColor(dep) {
+                return dep > 91  ? 'red' :
+                    dep > 90  ? 'orangered' :
+                    dep > 50  ? 'orange' :
+                    dep > 30   ? 'yellow' :
+                    dep > 10   ? 'yellowgreen' :
+                                'green';
+            }
   
     // Create a new circle cluster group.
     quakeMarker = []
-
+    
     // Loop through the data.
     for (var i = 0; i < features.length; i++) {
 
@@ -39,39 +46,21 @@ async function main() {
         // variable for my marker size and color
         var mag = quake.properties.mag;
         var dep = quake.geometry.coordinates[2];
+      
 
-        // create color conditions for depth 
-        var color = "";
-            if (dep > 91) {
-            color = "red";
-            }
-            else if (dep > 90) {
-            color = "orangered";
-            }
-            else if (dep > 50) {
-            color = "orange";
-            }
-            else if ( dep > 30){
-                color = "yellow"
-            }
-            else if ( dep > 10){
-                color = "yellowgreen"
-            }
-            else {
-            color = "green";
-        }
 
         if (quake){
             quakeMarker.push(
             L.circle([quake.geometry.coordinates[1], quake.geometry.coordinates[0]],{
                 fillOpacity: 0.75,
-                color: color,
-                fillColor: color,
+                color: getColor(dep),
+                fillColor: getColor(dep),
                 radius: mag * 5000,   
             }).bindPopup(
                 "<h1>"+ "Quake Title: " + quake.properties.title + "<br>"+ "<hr>"+ 
                 "Magnitute: " + mag + "<br>"+ "Depth: " + dep + "<h1>")
             )};
+        
          
 
     };
@@ -101,26 +90,26 @@ async function main() {
 
 
     // Create legend
-    var legend = L.control({position: "bottomright"});
-    legend.onAdd = function () {
 
-        var div = L.DomUtil.create('div', 'info legend');
-        // let labels = ['<strong>Depth</strong>'];
-        const depths = ['-10-10', '10-30', '30-50', '50-70', '70-90', '90+'];
-        const colors = ["red", "orangered", "orange", "yellow", "yellowgreen", "green"]
+    // YOU NEED A GET COLOR FUNCTION FOR THIS TO WORK
+    var legend = L.control({position: "bottomright"});
+    legend.onAdd = function (myMap) {
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            title = ['<strong>Depth</strong>'],
+            depths = [-10, 10, 30, 50, 70, 90];
 
     for (var i = 0; i < depths.length; i++) {
             div.innerHTML += 
-          "<i style='background: " + colors[i] + "'></i> " 
-          +
+          "<i style='background: " + getColor(depths[i] + 1) + "'></i> " +
           depths[i] + (depths[i + 1] ? "&ndash;" + depths[i + 1] + "<br>" : "+");
         }
         return div;
     };
     
-
+ 
   
-    // Finally, we add our legend to the map.
+    //  add our legend to the map.
     legend.addTo(myMap);
 
 };
