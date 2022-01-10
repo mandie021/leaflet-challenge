@@ -21,10 +21,11 @@ async function main() {
     });
     function getColor(dep) {
                 return dep > 91  ? 'red' :
-                    dep > 90  ? 'orangered' :
-                    dep > 50  ? 'orange' :
-                    dep > 30   ? 'yellow' :
-                    dep > 10   ? 'yellowgreen' :
+                    dep > 90  ? '#DD571C' :
+                    dep > 70  ? '#FC6A03' :
+                    dep > 50  ? '#EC9706' :
+                    dep > 30  ? 'yellow' :
+                    dep > 10  ? 'yellowgreen' :
                                 'green';
             }
   
